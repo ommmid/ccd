@@ -1,0 +1,33 @@
+# CMake FABRIK module
+#
+# It defines the following variables:
+# FABRIK_FOUND         - TRUE
+# FABRIK_INCLUDE_DIRS  - The FABRIK include directory
+# FABRIK_LIBRARIES     - The FABRIK library
+# FABRIKAPP_LIBRARIES  - The FABRIK.app libraries (if installed)
+# FABRIK_VERSION       - The FABRIK version in the form <major>.<minor>.<patchlevel>
+# FABRIK_MAJOR_VERSION - Major version
+# FABRIK_MINOR_VERSION - Minor version
+# FABRIK_PATCH_VERSION - Patch version
+
+# @ sign is only used in *.in files and @NAME@ means the value of variable NAME
+
+@PACKAGE_INIT@
+
+set(FABRIK_VERSION @PROJECT_VERSION@)
+set(FABRIK_MAJOR_VERSION @PROJECT_VERSION_MAJOR@)
+set(FABRIK_MINOR_VERSION @PROJECT_VERSION_MINOR@)
+set(FABRIK_PATCH_VERSION @PROJECT_VERSION_PATCH@)
+
+set_and_check(FABRIK_INCLUDE_DIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
+set(FABRIK_INCLUDE_DIRS "${FABRIK_INCLUDE_DIR};@EIGEN3_INCLUDE_DIR@")
+list(REMOVE_DUPLICATES FABRIK_INCLUDE_DIRS)
+list(REMOVE_ITEM FABRIK_INCLUDE_DIRS "")
+set(FABRIK_INCLUDE_DIRS "${FABRIK_INCLUDE_DIRS}" CACHE STRING "Include path for FABRIK and its dependencies")
+
+set_and_check(FABRIK_LIBRARY_DIR @PACKAGE_LIB_INSTALL_DIR@)
+find_library(FABRIK_LIBRARIES NAMES FABRIK.${FABRIK_VERSION} FABRIK
+    PATHS ${FABRIK_LIBRARY_DIR} NO_DEFAULT_PATH)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(FABRIK DEFAULT_MSG FABRIK_INCLUDE_DIRS FABRIK_LIBRARIES)
