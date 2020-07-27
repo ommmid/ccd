@@ -85,14 +85,14 @@ output.target_ee_error_track.push_back(target_ee_error);
 
 std::cout << "initial error: \n" << target_ee_error << std::endl;
 std::cout << "target: \n" << target_.matrix() << std::endl;
-robot_state_->printState("fabrik::fabrik.cpp: Initial Configuration", std::vector<int>{0,1,2});
+robot_state_->printState("ccd::ccd.cpp: Initial Configuration", std::vector<int>{0,1,2});
 
 int iteration_num = 0;
 while (target_ee_error > threshold_ && (iteration_num != requested_iteration_num_))
 {
     std::cout << "------------------------ iteration number: " << iteration_num << std::endl;
     
-    // robot_state_->printState("fabrik::fabrik.cpp: backwardReaching", std::vector<int>{0,1,2});
+    // robot_state_->printState("ccd::ccd.cpp: backwardReaching", std::vector<int>{0,1,2});
     
     // do one backward reaching
     CCD::backwardReaching(output);
@@ -130,14 +130,14 @@ double CCD::objectiveFunction()
             (ee_z - target_3points_[2]).dot(ee_z - target_3points_[2]);
 }
 
-double CCD::objectiveFunction(const double& angle, const int joint_number)
+double CCD::objectiveFunction(const std::vector<double>& angles, const std::vector<int>& joints_numbers)
 {
     int dof = robot_state_->getRobotModel()->getDOF();
     std::vector<Eigen::Vector4d> ee_3points = robot_state_->getRobotModel()->getEE3Points();
 
     // objective function has a separate state because I do not want to mess up the main robot_state_
     RobotStatePtr robot_state_local = std::make_shared<ccd::RobotState>(robot_state_->getRobotModel(), robot_state_->getJointsValues());
-    robot_state_local->updateState(angle, joint_number);
+    robot_state_local->updateState(angles, joints_numbers);
     Eigen::Vector4d ee_o = robot_state_local->getFrames(dof - 1).second * ee_3points[0];
     Eigen::Vector4d ee_x = robot_state_local->getFrames(dof - 1).second * ee_3points[1];
     Eigen::Vector4d ee_z = robot_state_local->getFrames(dof - 1).second * ee_3points[2];
@@ -165,11 +165,9 @@ void CCD::backwardReaching(IKOutput& output)
         // xte: vector xt from target_3points relative to the previous frame
         // zte: vector zt from target_3points relative to the previous frame
 
-        std::vector<Eigen::Vector4d> ee_3points = robot_state_->getRobotModel()->getEE3Points();
-
-        Eigen::Vector4d oe =  robot_state_->getOpointInLinkStartFrame(joint_number);
-        Eigen::Vector4d xe =  robot_state_->getXpointInLinkStartFrame(joint_number);
-        Eigen::Vector4d ze =  robot_state_->getZpointInLinkStartFrame(joint_number);
+        Eigen::Vector4d oe =  robot_state_->getPoint1InLinkStartFrame(joint_number);
+        Eigen::Vector4d xe =  robot_state_->getPoint2InLinkStartFrame(joint_number);
+        Eigen::Vector4d ze =  robot_state_->getPoint3InLinkStartFrame(joint_number);
 
         Eigen::Vector4d ote =  target_3points_[0].transpose() * robot_state_->getFrames(joint_number - 1).second.matrix();
         Eigen::Vector4d xte =  target_3points_[1].transpose() * robot_state_->getFrames(joint_number - 1).second.matrix();
@@ -180,10 +178,13 @@ void CCD::backwardReaching(IKOutput& output)
         
         // find angle that creates the min for objective function 
         double min_angle = reaching_angles[0];
-        double min_objective_function = objectiveFunction(min_angle, joint_number);
+        std::vector<double> min_angle_vec = {min_angle};
+        std::vector<int> joint_number_vec = {joint_number};
+        double min_objective_function = objectiveFunction(min_angle_vec, joint_number_vec);
         for (auto angle : reaching_angles)
         {
-            double objective_function = objectiveFunction(angle, joint_number);
+            std::vector<double> angle_vec = {angle};
+            double objective_function = objectiveFunction(angle_vec, joint_number_vec);
             if (objective_function < min_objective_function)
             {
                 min_objective_function = objective_function;
@@ -198,7 +199,8 @@ void CCD::backwardReaching(IKOutput& output)
         // start_to_end_projected_vec[joint_number] = pbc->start_to_end_projected;
         angle_vec[joint_number] = min_angle;
 
-        robot_state_->updateState(min_angle, joint_number);
+        min_angle_vec.clear(); min_angle_vec.push_back(min_angle);
+        robot_state_->updateState(min_angle_vec, joint_number_vec);
 
         // robot_state_->printState("Forward Reaching .....", std::vector<int>{0,1,2});
     }

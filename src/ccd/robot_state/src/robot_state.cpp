@@ -22,15 +22,18 @@ robot_model_(robot_model)
     joints_values_.resize(dof_);
     frames_.resize(dof_);
 
+    std::vector<int> joints_numbers;
+    std::vector<double> joints_values;
     // Set all the joint to zero 
     for(int i = 0; i < dof_; ++i)
     {
-        joints_values_[i] = 0;
+        joints_numbers.push_back(i);
+        joints_values.push_back(0);
     }
  
     // update the frames
-    // The following will update all the frames starting from 0 all the way to ee
-    updateState(joints_values_[0], 0);
+    // The following will update all the frames starting from 0 all the way to ee based on joints_values_
+    updateState(joints_values, joints_numbers);
 }
 
 RobotState::RobotState(const RobotModelPtr& robot_model, const std::vector<double>& given_configuration):
@@ -44,23 +47,25 @@ robot_model_(robot_model)
     joints_values_.resize(dof_);
     frames_.resize(dof_);
 
-    // Set the joint values to the given ones and update the frames.
+    std::vector<int> joints_numbers;
     for(int i = 0; i < dof_; ++i)
     {
-        joints_values_[i] = given_configuration[i];
+        joints_numbers.push_back(i);
     }
 
     // frames number start from 0 
-    // The following will update all the frames starting from 0 all the way to ee
-    updateState(joints_values_[0], 0);
+    // The following will update all the frames starting from 0 all the way to ee based on joints_values_
+    updateState(given_configuration, joints_numbers);
 }
 
 
-void RobotState::updateState(const double& joint_value, const int& joint_number)
+void RobotState::updateState(const std::vector<double>& joints_values, const std::vector<int>& joints_numbers)
 {
     // std::cout << "joint number: " << joint_number << " joint value: " << joint_value << std::endl;
 
-    joints_values_[joint_number] = joint_value;
+for (int joint_number : joints_numbers)
+{
+    joints_values_[joint_number] = joints_values[joint_number];
 
     // update s_i and e_i and all the frames after that
     for (int j = joint_number; j < dof_; ++j)
@@ -72,8 +77,8 @@ void RobotState::updateState(const double& joint_value, const int& joint_number)
         // e_i = s_i * relative transformation of link_i
         frames_[j].second = frames_[j].first * chain_[j].getLinkFrame();
     }
-    
-    // std::cout << "rotation_z: \n" << fabrik::rotation_z(joint_value).matrix() << std::endl;
+}   
+    // std::cout << "rotation_z: \n" << ccd::rotation_z(joint_value).matrix() << std::endl;
     // std::cout << "base: \n" << base_.matrix() << std::endl;
     // std::cout << "end_i_minus_1: \n" << end_i_minus_1.matrix() << std::endl;
     // std::cout << "start_i: \n" << frames_[joint_number].first.matrix() << std::endl;
@@ -83,7 +88,7 @@ void RobotState::updateState(const double& joint_value, const int& joint_number)
     // printState("update state ......", std::vector<int>{0,1,2});
 }
 
-const Eigen::Vector4d RobotState::getOpointInLinkStartFrame(int link_number) const
+const Eigen::Vector4d RobotState::getPoint1InLinkStartFrame(int link_number) const
 {
     // x point on the ee expressed locally in the end_frame of the las link:
     Eigen::Vector4d o_ee = robot_model_->getEEPointO();
@@ -93,7 +98,7 @@ const Eigen::Vector4d RobotState::getOpointInLinkStartFrame(int link_number) con
     return start_frame_at_link_number.inverse() * ee * o_ee;
 }
 
-const Eigen::Vector4d RobotState::getXpointInLinkStartFrame(int link_number) const
+const Eigen::Vector4d RobotState::getPoint2InLinkStartFrame(int link_number) const
 {
     // x point on the ee expressed locally in the end_frame of the las link:
     Eigen::Vector4d x_ee = robot_model_->getEEPointX();
@@ -103,7 +108,7 @@ const Eigen::Vector4d RobotState::getXpointInLinkStartFrame(int link_number) con
     return start_frame_at_link_number.inverse() * ee * x_ee;
 }
 
-const Eigen::Vector4d RobotState::getZpointInLinkStartFrame(int link_number) const
+const Eigen::Vector4d RobotState::getPoint3InLinkStartFrame(int link_number) const
 {
     // x point on the ee expressed locally in the end_frame of the las link:
     Eigen::Vector4d z_ee = robot_model_->getEEPointZ();

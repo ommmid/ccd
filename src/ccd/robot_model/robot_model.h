@@ -65,6 +65,9 @@ public:
      * default names to the links
      */
     RobotModel(const std::string& robot_name, const Eigen::Affine3d& base, const std::vector<Link>& chain);
+
+    RobotModel(const std::string& robot_name, const Eigen::Affine3d& base, 
+               const std::vector<Link>& chain, std::vector<Eigen::Vector4d> ee_3points);
    
     /** \brief Get the robot struacture which is the set of links */
     const std::vector<Link> getRobotChain() const
@@ -127,7 +130,7 @@ public:
     /** \brief Three points expressed in the end_frame of the last link and are fixed with respect to that frame.
      * These points are used in inverse kinematics to match the corresponding three points on the target
      */
-    std::vector<Eigen::Vector4d>  ee_3points_;
+    std::vector<Eigen::Vector4d> ee_3points_;
 };
 
 RobotModelPtr makeSimpleRobot2D();

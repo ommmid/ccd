@@ -79,7 +79,7 @@ double objectiveFunction();
  * the objective function at some configuration without chaing the main robot_state_. That is why we make another
  * robot state in this function to check the objective function
  */
-double objectiveFunction(const double& angle, const int joint_number);
+double objectiveFunction(const std::vector<double>& angles, const std::vector<int>& joints_numbers);
 
 CalculatorPtr createCalculator(const CalculatorType& calculator_type);
 

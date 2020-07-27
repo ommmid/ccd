@@ -9,7 +9,6 @@
 
 #include "ccd/robot_model/robot_model.h"
 #include "ccd/util/class_forward.h"
-#include "ccd/util/io.h"
 
 namespace ccd
 {  

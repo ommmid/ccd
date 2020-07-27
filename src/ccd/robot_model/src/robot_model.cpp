@@ -23,7 +23,7 @@ link_name_(link_name)
     link_frame_ = start_frame.inverse() * end_frame;
 }
 
-// // -------------------- Chain --------------------
+// // -------------------- Robot Model --------------------
 RobotModel::RobotModel(const std::string& robot_name, const Eigen::Affine3d& base, const std::vector<Link>& chain):
 robot_name_(robot_name), base_(base), chain_(chain)
 {   
@@ -37,6 +37,22 @@ robot_name_(robot_name), base_(base), chain_(chain)
     {
         dof_ = dof;
     }
+}
+
+RobotModel::RobotModel(const std::string& robot_name, const Eigen::Affine3d& base, 
+               const std::vector<Link>& chain, std::vector<Eigen::Vector4d> ee_3points):
+robot_name_(robot_name), base_(base), chain_(chain), ee_3points_(ee_3points)
+{
+    int dof = (int)chain_.size();
+
+    if( dof == 0)
+    {
+         throw ccd::Exception("a chain can not be created by 0 link");
+    } 
+    else
+    {
+        dof_ = dof;
+    }   
 }
 
 RobotModelPtr makeSimpleRobot2D()
@@ -71,7 +87,16 @@ RobotModelPtr makeSimpleRobot2D()
     Eigen::Affine3d base(Eigen::AngleAxisd(0, vec0));
     base.translation() = Eigen::Vector3d(0, 0, 0);
 
-    RobotModelPtr robot_model = std::make_shared<RobotModel>(robot_name, base, chain);
+    Eigen::Vector4d ee_o_local; ee_o_local << 0,   0,  0,   1;  
+    Eigen::Vector4d ee_x_local; ee_x_local << 0.2, 0,  0,   1;  
+    Eigen::Vector4d ee_y_local; ee_y_local << 0,  0.2, 0, 1;  
+
+    std::vector<Eigen::Vector4d> ee_3points;
+    ee_3points.push_back(ee_o_local);
+    ee_3points.push_back(ee_x_local);
+    ee_3points.push_back(ee_y_local);
+
+    RobotModelPtr robot_model = std::make_shared<RobotModel>(robot_name, base, chain, ee_3points);
     return robot_model;
 }
 
@@ -111,7 +136,16 @@ RobotModelPtr makeSimpleRobot3D()
     chain.push_back(link2);
     chain.push_back(link3);
     
-    ccd::RobotModelPtr robot_model = std::make_shared<ccd::RobotModel>(robot_name, base, chain);
+    Eigen::Vector4d ee_o_local; ee_o_local << 0,   0,  0,   1;  
+    Eigen::Vector4d ee_x_local; ee_x_local << 0.2, 0,  0,   1;  
+    Eigen::Vector4d ee_z_local; ee_z_local << 0,  0, 0.2, 1;  
+
+    std::vector<Eigen::Vector4d> ee_3points;
+    ee_3points.push_back(ee_o_local);
+    ee_3points.push_back(ee_x_local);
+    ee_3points.push_back(ee_z_local);
+
+    ccd::RobotModelPtr robot_model = std::make_shared<ccd::RobotModel>(robot_name, base, chain, ee_3points);
     return robot_model;
 }
 

@@ -52,7 +52,7 @@ public:
      * and they start from 0 to n-1, n being the number of degrees of freedom
      * It also updates the joints values first
      */ 
-    void updateState(const double& joint_value, const int& joint_number);
+    void updateState(const std::vector<double>& joints_values, const std::vector<int>& joints_numbers);
 
     const std::vector<double> getJointsValues() const
     {
@@ -79,12 +79,28 @@ public:
         return robot_model_;
     }
 
+    /** \brief get the point O in the world frame */
+    const Eigen::Vector4d getPoint1() const
+    {
+        return frames_[dof_ - 1].second * robot_model_->getEEPointO();
+    }
+
+    const Eigen::Vector4d getPoint2() const
+    {
+        return frames_[dof_ - 1].second * robot_model_->getEEPointX();
+    }
+
+    const Eigen::Vector4d getPoint3() const
+    {
+        return frames_[dof_ - 1].second * robot_model_->getEEPointZ();
+    }
+
     /** \brief the x point on the end_frame of the last link expressed requested start_frame */
-    const Eigen::Vector4d getOpointInLinkStartFrame(int link_number) const;
+    const Eigen::Vector4d getPoint1InLinkStartFrame(int link_number) const;
 
-    const Eigen::Vector4d getXpointInLinkStartFrame(int link_number) const;
+    const Eigen::Vector4d getPoint2InLinkStartFrame(int link_number) const;
 
-    const Eigen::Vector4d getZpointInLinkStartFrame(int link_number) const;
+    const Eigen::Vector4d getPoint3InLinkStartFrame(int link_number) const;
  
     /** \brief for debugging purposes */
     std::string createDashBoard() const;
