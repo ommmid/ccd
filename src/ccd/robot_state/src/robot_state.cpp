@@ -90,7 +90,7 @@ for (int joint_number : joints_numbers)
 
 const Eigen::Vector4d RobotState::getPoint1InLinkStartFrame(int link_number) const
 {
-    // x point on the ee expressed locally in the end_frame of the las link:
+    // point 1 on the ee expressed locally in the end_frame of the las link:
     Eigen::Vector4d o_ee = robot_model_->getEEPointO();
     Eigen::Affine3d start_frame_at_link_number = frames_[link_number].first;
     Eigen::Affine3d ee = frames_[dof_ - 1].second;
@@ -100,7 +100,7 @@ const Eigen::Vector4d RobotState::getPoint1InLinkStartFrame(int link_number) con
 
 const Eigen::Vector4d RobotState::getPoint2InLinkStartFrame(int link_number) const
 {
-    // x point on the ee expressed locally in the end_frame of the las link:
+    // point 2 on the ee expressed locally in the end_frame of the las link:
     Eigen::Vector4d x_ee = robot_model_->getEEPointX();
     Eigen::Affine3d start_frame_at_link_number = frames_[link_number].first;
     Eigen::Affine3d ee = frames_[dof_ - 1].second;
@@ -110,7 +110,7 @@ const Eigen::Vector4d RobotState::getPoint2InLinkStartFrame(int link_number) con
 
 const Eigen::Vector4d RobotState::getPoint3InLinkStartFrame(int link_number) const
 {
-    // x point on the ee expressed locally in the end_frame of the las link:
+    // point 3 on the ee expressed locally in the end_frame of the las link:
     Eigen::Vector4d z_ee = robot_model_->getEEPointZ();
     Eigen::Affine3d start_frame_at_link_number = frames_[link_number].first;
     Eigen::Affine3d ee = frames_[dof_ - 1].second;

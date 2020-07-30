@@ -56,7 +56,7 @@ std::vector<double> PositionBasedCalculator::calculateReach(const Eigen::Vector4
     // extract the real solutions
     for (auto solution : solutions)
     {
-        if(abs(std::imag(solution)) < 1e-5)
+        if(abs(std::imag(solution)) < IMAGINARY_ERROR)
         {
             double angle_solution = std::acos(std::real(solution));
             real_solutions.push_back(angle_solution);

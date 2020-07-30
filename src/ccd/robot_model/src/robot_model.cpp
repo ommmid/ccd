@@ -87,9 +87,9 @@ RobotModelPtr makeSimpleRobot2D()
     Eigen::Affine3d base(Eigen::AngleAxisd(0, vec0));
     base.translation() = Eigen::Vector3d(0, 0, 0);
 
-    Eigen::Vector4d ee_o_local; ee_o_local << 0,   0,  0,   1;  
-    Eigen::Vector4d ee_x_local; ee_x_local << 0.2, 0,  0,   1;  
-    Eigen::Vector4d ee_y_local; ee_y_local << 0,  0.2, 0, 1;  
+    Eigen::Vector4d ee_o_local; ee_o_local << 0,    0,  0,   1;  
+    Eigen::Vector4d ee_x_local; ee_x_local << 0.2,  0,  0,   1;  
+    Eigen::Vector4d ee_y_local; ee_y_local << 0,   0.2, 0,   1;  
 
     std::vector<Eigen::Vector4d> ee_3points;
     ee_3points.push_back(ee_o_local);
